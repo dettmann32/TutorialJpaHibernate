@@ -1,0 +1,183 @@
+Conexão com banco de dados utilizando jpa e hibernate 
+
+
+	Estou escrevendo esse artigo no intuito de servir como facilitador para a conexão de bancos de dados em Java sping-boot
+para os que sentem maior dificuldade de consultar o material da documentação oficial. Meu intuito é facilitar o entendimento para
+os mais iniciates na tecnologia, portanto, foneceria apenas breves explicações do código.
+
+
+
+
+Partirei pelo pressuposto que jas instalamos a jdk e o spring boot framework. Também estarei optando por maven como gerenciador de 
+dependencia. Nosso arquivo pom.xml deve conter as seguintes dependencias: 
+
+
+<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.7.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>6.5.0.Final</version>
+		</dependency>
+
+</dependencies>
+
+
+	Spring-boot-web para facilitar a criação de rotas e de controllers.
+
+	postgresql que é o diver que ira permitir a conexão de nossa aplicação com o banco de dados, optei, neste exemplo, pelo postgres,
+poderia ser outro banco sql. Sugiro que consulte o site oficial do mantendedor do SGBD para intalar o diver necessario, nesse caso,
+você pode procurar a versão estavel mais recente através desse link:https://jdbc.postgresql.org/ 
+
+	Hibernate É o ORM que optei, trata-se de uma implementação muito util para facilitar o desenvolvimento, pois ele é capaz de
+objetos java em tabelas no banco de dados. 
+
+	 
+	Data Jpa É uma dependencia que faz parte do ambiente spring. Ela serve para facilitar ainda mais o desenvolvimento, adicionando 
+uma camada a mais de abstração no código. 
+
+
+	Novamente, quero resaltar que estou sendo breve. Você também pode consultar a documentação oficial de cada tecnologia citada.
+
+
+Implementação
+
+	Neste tópico, tambem paritirei do pressuposto de que você já tem um banco de dados postgresql de pé. 
+	Nossa aplicação utilizara o arquivo que se encontra no seguinte diretório para acerssar o banco: src/main/application.properties.
+Você deve, então configuralo. 
+
+
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/teste
+spring.datasource.username=postgres
+spring.datasource.password=123456
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.hbm2ddl.auto = create
+
+
+Na primeiro linha você deve adicionar, depois de "jdbc:postgresql://" url de onde encontra-se o seu banco.
+Na segunda linha, deve haver o nome do usuario do banco.
+Na terceira, a senha do do seu banco.
+Na quarta, você deve dizer ao hibernate qual dialect você ira usar, nesse caso, PostgeSQL.
+Na ultima linha, que é opcional, você deve configurar o que deve ser feito ao inicializar o banco de dados, no caso de "create", ele ira
+criar a tabela mapeada, caso ela não exista ainda.
+
+
+	Agora podemos criar a Entidade para fazer o mapeamento de uma tabela. 
+
+package com.example.demo;
+
+
+import jakarta.persistence.*;
+
+
+@Entity
+public class service {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "nome_servico", nullable = false, length = 100)
+    private String nome;
+
+    @Column(name = "email_contato", nullable = false, unique = true)
+    private String email;
+    
+
+    public void setId(Long id){
+        this.id = id;
+    }
+
+    public void setNome(String nome){
+        this.nome = nome;
+    }
+
+    public void setEmail(String email){
+        this.email = email;
+    }
+
+    public Long getId(){
+       return this.id;
+    }
+
+    public String getNome(){
+       return this.nome;
+    }
+
+    public String getEmail(){
+        return this.email;
+    }
+
+}
+
+	Essas anotações devem ser importadas do pacote jakarta e elas servem, nesse contexto, para dizer para o hibernate o que ele deve fazer.
+Creio que não é necessária a explicação de cada anotação, pois é bem intuitivo.
+
+	Agora, nossa tabela já esta mapeada e, como configuramos, ela sera criada se não existir quando rodarmos o código. Mas antes, 
+certifique-se que existe um banco de dados. No meu caso, tive que abrir o terminal do postgres e digitar o sql "CREATE DATABASE teste"
+para criar a base de dados. Executando o código, você deve ter uma tabela com o mesmo nome da classe que acabamos de criar.
+
+	Agora, podemos implmentar nossa class com o JPA para criar um interface mais amigavel para nosso código. Faremos isso em outro arquivo
+declarando uma interface java: 
+
+
+	
+	package com.example.demo;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ServiceRepository extends JpaRepository<service, Long> {
+
+}
+
+
+
+	Simples, não? Basta nós criarmos uma interface que herda uma interface do Data JPA que recebe como primeiro parametro a classe
+de mapeamento que acabamos de criar, e como segundo, recebe a tipagem do ID de nossa tabela.
+
+	Agora podemos usar essa interface em qualquer lugar de nossa aplicação. Utilizei esta em uma rota http, como exemplo. 
+
+import com.example.demo.ServiceRepository;
+import com.example.demo.service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class ControllerPrincipal {
+
+    @Autowired
+    ServiceRepository serviceRepository;
+
+    @RequestMapping("/")
+    service home(){
+
+
+            service Usuario =  new service();
+            Usuario.setNome("lucas");
+            Usuario.setEmail("email@email");
+
+            serviceRepository.save(Usuario);
+
+            return Usuario;
+    }
+} 
+
+
+	Execute a aplicação e acesse essa rota pelo navegador. Após isso, uma das linhas da tabéla deve estar preenchidas. 
