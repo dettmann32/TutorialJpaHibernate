@@ -2,18 +2,73 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="./static/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
 <body>
+
     <header>
+        <nav class="navbar">
+            <a href="#home">Home</a>
+            <a href="#news">News</a>
+            <a href="#contact">Contact</a>
+        </nav>
 
+        <div class="titulo_box">
+            <h1 class="titulo">HIBERNATE + SPRING BOOT</h1>
+            
+        </div>
     </header>
-    <main>
 
-    </main>
-    <footer>
+    <main class="main">
+        <section><h2>Conexão com banco de dados utilizando jpa e hibernate </h2>
+        <p>Estou escrevendo esse artigo no intuito de servir como facilitador para a conexão de bancos de dados em Java sping-boot
+            para os que sentem maior dificuldade de consultar o material da documentação oficial. Meu intuito é facilitar o entendimento para
+            os mais iniciates na tecnologia, portanto, foneceria apenas breves explicações do código.</p>
         
+            <p>Partirei pelo pressuposto que jas instalamos a jdk e o spring boot framework. Também estarei optando por maven como gerenciador de 
+                dependencia. Nosso arquivo pom.xml deve conter as seguintes dependencias: </p>
+
+                <pre>
+        <code>
+
+            
+        <span class="tag">&lt;dependencies&gt;</span>
+            <span class="tag">&lt;dependency&gt;</span>
+                <span class="attr-name">&lt;groupId&gt;</span>org.springframework.boot<span class="attr-name">&lt;/groupId&gt;</span>
+                <span class="attr-name">&lt;artifactId&gt;</span>spring-boot-starter-web<span class="attr-name">&lt;/artifactId&gt;</span>
+            <span class="tag">&lt;/dependency&gt;</span></span>
+                
+            <span class="tag">&lt;dependency&gt;</span>
+                <span class="attr-name">&lt;groupId&gt;</span>org.postgresql<span class="attr-name">&lt;/groupId&gt;</span>
+                <span class="attr-name">&lt;artifactId&gt;</span>postgresql<span class="attr-name">&lt;/artifactId&gt;</span>
+                <span class="attr-name">&lt;version&gt;</span>42.7.3<span class="attr-name">&lt;/version&gt;</span>
+            <span class="tag">&lt;/dependency&gt;</span>
+        
+                <span class="tag">&lt;dependency&gt;</span>
+                    <span class="attr-name">&lt;groupId&gt;</span>org.springframework.boot<span class="attr-name">&lt;/groupId&gt;</span>
+                <span class="attr-name">&lt;artifactId&gt;</span>spring-boot-starter-data-jpa<span class="attr-name">&lt;/artifactId&gt;</span>
+            <span class="tag">&lt;/dependency&gt;</span>
+            
+            <span class="tag">&lt;dependency&gt;</span>
+                   <span class="attr-name">&lt;groupId&gt;</span>org.hibernate.orm<span class="attr-name">&lt;/groupId&gt;</span>
+                <span class="attr-name">&lt;artifactId&gt;</span>hibernate-core<span class="attr-name">&lt;/artifactId&gt;</span>
+                   <span class="attr-name">&lt;version&gt;</span>6.5.0.Final<span class="attr-name">&lt;/version&gt;</span>
+               <span class="tag">&lt;/dependency&gt;</span>
+            <span class="tag">&lt;/dependencies&gt;</span>
+        
+
+        </code>
+                </pre>
+        </section>
+
+
+        
+    </main>
+
+    <footer>
+
     </footer>
 </body>
 </html>
