@@ -10,9 +10,9 @@
 
     <header>
         <nav class="navbar">
-            <a href="#home">Home</a>
-            <a href="#news">News</a>
-            <a href="#contact">Contact</a>
+            <a href="#JPA">JPA</a>
+            <a href="#IMPLEMENTAÇÃO">IMPLEMENTAÇÃO</a>
+            
         </nav>
 
         <div class="titulo_box">
@@ -22,7 +22,9 @@
     </header>
 
     <main class="main">
-        <section><h2>Conexão com banco de dados utilizando jpa e hibernate </h2>
+
+        <section ><h2 id="JPA">Conexão com banco de dados utilizando jpa e hibernate </h2>
+            <article>
         <p>Estou escrevendo esse artigo no intuito de servir como facilitador para a conexão de bancos de dados em Java sping-boot
             para os que sentem maior dificuldade de consultar o material da documentação oficial. Meu intuito é facilitar o entendimento para
             os mais iniciates na tecnologia, portanto, foneceria apenas breves explicações do código.</p>
@@ -56,11 +58,207 @@
                 <span class="attr-name">&lt;artifactId&gt;</span>hibernate-core<span class="attr-name">&lt;/artifactId&gt;</span>
                    <span class="attr-name">&lt;version&gt;</span>6.5.0.Final<span class="attr-name">&lt;/version&gt;</span>
                <span class="tag">&lt;/dependency&gt;</span>
-            <span class="tag">&lt;/dependencies&gt;</span>
+        <span class="tag">&lt;/dependencies&gt;</span>
         
 
         </code>
                 </pre>
+
+            </article>    
+
+
+            <article>
+
+                <ul class="lista">
+                <li><strong>Spring-boot-web</strong> para facilitar a criação de rotas e de controllers.
+
+                <li><strong>PostgreSql </strong>que é o diver que ira permitir a conexão de nossa aplicação com o banco de dados, optei, neste exemplo, pelo postgres,
+            poderia ser outro banco sql. Sugiro que consulte o site oficial do mantendedor do SGBD para intalar o diver necessario, nesse caso,
+            você pode procurar a versão estavel mais recente através desse link:<a href="https://jdbc.postgresql.org/" ref="noref" target="_blank">https://jdbc.postgresql.org/ </a>
+            
+               <li> <strong>Hibernate</strong> É o ORM que optei, trata-se de uma implementação muito util para facilitar o desenvolvimento, pois ele é capaz de
+            objetos java em tabelas no banco de dados. 
+            
+                 
+               <li> <strong>Data Jpa</strong> É uma dependencia que faz parte do ambiente spring. Ela serve para facilitar ainda mais o desenvolvimento, adicionando 
+            uma camada a mais de abstração no código. 
+            
+            
+             Novamente, quero resaltar que estou sendo breve. Você também pode consultar a documentação oficial de cada tecnologia citada.
+                </ul>
+            </article>
+        </section>
+
+
+
+
+
+        <section id="IMPLEMENTAÇÃO">
+            <article>
+                <h2>Implementação</h2>
+                <p>
+                    Neste tópico, tambem paritirei do pressuposto de que você já tem um banco de dados postgresql de pé. 
+                    Nossa aplicação utilizara o arquivo que se encontra no seguinte diretório para acerssar o banco: src/main/application.properties.
+                Você deve, então configuralo. 
+                </p>
+
+                <code>
+                    <pre>
+
+        <span class="tag">spring.datasource.url</span>=jdbc:postgresql://localhost:5432/teste
+        <span class="tag">spring.datasource.username</span>=postgres
+        <span class="tag">spring.datasource.password</span>=123456
+        <span class="tag">spring.jpa.properties.hibernate.dialect</span>=org.hibernate.dialect.PostgreSQLDialect
+        <span class="tag">spring.jpa.properties.hibernate.hbm2ddl.auto</span>=create
+                        
+                    </pre>
+                </code>
+
+
+                <p>
+                    Na primeiro linha você deve adicionar, depois de "jdbc:postgresql://" url de onde encontra-se o seu banco.
+Na segunda linha, deve haver o nome do usuario do banco.
+Na terceira, a senha do do seu banco.
+Na quarta, você deve dizer ao hibernate qual dialect você ira usar, nesse caso, PostgeSQL.
+Na ultima linha, que é opcional, você deve configurar o que deve ser feito ao inicializar o banco de dados, no caso de "create", ele ira
+criar a tabela mapeada, caso ela não exista ainda.
+                </p>
+
+                <strong>Agora podemos criar a Entidade para fazer o mapeamento de uma tabela. </strong>
+
+                <code>
+
+                    <pre>
+
+                        package com.example.demo;
+
+
+    import jakarta.persistence.*;
+
+
+    @Entity
+    public class service {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+        @Column(name = "nome_servico", nullable = false, length = 100)
+        private String nome;
+
+        @Column(name = "email_contato", nullable = false, unique = true)
+        private String email;
+        
+
+        public void setId(Long id){
+            this.id = id;
+        }
+
+        public void setNome(String nome){
+            this.nome = nome;
+        }
+
+        public void setEmail(String email){
+            this.email = email;
+        }
+
+        public Long getId(){
+        return this.id;
+        }
+
+        public String getNome(){
+        return this.nome;
+        }
+
+        public String getEmail(){
+            return this.email;
+        }
+
+    }
+                    </pre>
+                </code>
+
+                <p>
+                    Essas anotações devem ser importadas do pacote jakarta e elas servem, nesse contexto, para dizer para o hibernate o que ele deve fazer.
+Creio que não é necessária a explicação de cada anotação, pois é bem intuitivo.
+
+	Agora, nossa tabela já esta mapeada e, como configuramos, ela sera criada se não existir quando rodarmos o código. Mas antes, 
+certifique-se que existe um banco de dados. No meu caso, tive que abrir o terminal do postgres e digitar o sql "CREATE DATABASE teste"
+para criar a base de dados. Executando o código, você deve ter uma tabela com o mesmo nome da classe que acabamos de criar.
+
+	
+                </p>
+
+
+            </article>
+
+
+            <article>
+                <p>Agora, podemos implmentar nossa class com o JPA para criar um interface mais amigavel para nosso código. Faremos isso em outro arquivo
+                    declarando uma interface java: </p>
+
+                    <code>
+
+                        <pre>
+        package com.example.demo;
+
+        import org.springframework.data.jpa.repository.JpaRepository;
+        import org.springframework.stereotype.Repository;
+        
+        @Repository
+        public interface ServiceRepository extends JpaRepository<service, Long> {
+        
+        }
+                        </pre>
+                    </code>
+
+                    <p>Simples, não? Basta nós criarmos uma interface que herda uma interface do Data JPA que recebe como primeiro parametro a classe
+                        de mapeamento que acabamos de criar, e como segundo, recebe a tipagem do ID de nossa tabela.</p>
+
+            </article>
+
+
+            <article>
+
+                <p>Agora podemos usar essa interface em qualquer lugar de nossa aplicação. Utilizei esta em uma rota http, como exemplo.</p>
+
+                <code>
+                    <pre>
+
+    import com.example.demo.ServiceRepository;
+    import com.example.demo.service;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RestController;
+
+    @RestController
+    public class ControllerPrincipal {
+
+        @Autowired
+        ServiceRepository serviceRepository;
+
+        @RequestMapping("/")
+        service home(){
+
+
+                service Usuario =  new service();
+                Usuario.setNome("lucas");
+                Usuario.setEmail("email@email");
+
+                serviceRepository.save(Usuario);
+
+                return Usuario;
+        }
+    } 
+                    </pre>
+                </code>
+
+                <p>
+                    Execute a aplicação e acesse essa rota pelo navegador. Após isso, uma das linhas da tabéla deve estar preenchidas. 
+
+                </p>
+            </article>
+
+
+
         </section>
 
 
